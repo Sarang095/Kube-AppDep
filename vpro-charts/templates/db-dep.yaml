@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-dep
+  labels:
+    app: vprodb
+spec:
+  selector:
+    matchLabels:
+      app: vprodb
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: vprodb
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: vprodb
+          image: csag095/vprofiledb:latest
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: vprodb-data
+          ports:
+            - name: vprodb-port
+              containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-app-secrets
+                  key: dbpass
+  volumeClaimTemplates:
+    - metadata:
+        name: vprodb-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: vpro-sc
