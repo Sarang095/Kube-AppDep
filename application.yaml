@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Sarang095/Kube-AppDep.git
     targetRevision: master
-    path: ./vprofile-kube
+    path: ./vpro-charts
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default
